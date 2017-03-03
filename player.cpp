@@ -131,6 +131,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
      //Let the opponent do move first
      board->doMove(opponentsMove, opponent);
  
+	 bool availableMove = false;
      Move* betterMove;
      int currentMax = -100;
      int currentWeight = -100;
@@ -146,15 +147,17 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
 						currentMax = positionScore(newBoard);
 						betterMove = newMove;
 						currentMax = boardWeight(i,j);
+						availableMove = true;
 					}
 				}
 			}
 		 }
 	 }
 	 
-	 
-	 board->doMove(betterMove, player);
-	 return betterMove;
+	if (availableMove) {
+		board->doMove(betterMove, player);
+		return betterMove;
+	}
      
     return nullptr;
 }
