@@ -5,6 +5,9 @@
  * on (BLACK or WHITE) is passed in as "side". The constructor must finish
  * within 30 seconds.
  */
+ 
+
+
 Player::Player(Side side) {
     // Will be set to true in test_minimax.cpp.
     testingMinimax = false;
@@ -107,6 +110,11 @@ int Player::positionScore(Board* b, int i, int j) {
 	return (weight * score);
 }
 
+int Player::miniMaxScore(Board*b){
+	int score = b->countBlack() - b->countWhite();
+	return (score);
+}
+
 
 /*
  * Compute the next move given the opponent's last move. Your AI is
@@ -121,8 +129,8 @@ int Player::positionScore(Board* b, int i, int j) {
  * The move returned must be legal; if there are no valid moves for your side,
  * return nullptr.
  */
- 
-Move *Player::doMove(Move *opponentsMove, int msLeft) {
+   
+Move *Player::makeMoveWeighted(Move *opponentsMove, int msLeft) {
     /*
      * TODO: Implement how moves your AI should play here. You should first
      * process the opponent's opponents move before calculating your own move
@@ -134,30 +142,141 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
 	 //Heuristic Approach
 	 bool availableMove = false;
      Move* betterMove;
-     int currentMax = -100000;
-     int currentWeight = -1;
+     int currentMax = INT_MIN;
+     int currentWeight = INT_MIN;
      Board* newBoard = board->copy();
      for (int i = 0; i < 8; i++) {
 		 for (int j = 0; j < 8; j++) {
-			 Move *newMove = new Move(i, j);
+			 // go through all possible moves
+			 Move *newMove = new Move(i, j); 
 			 if (board->checkMove(newMove, player)) {
 				 if (boardWeight(i, j) >= currentWeight) {
 					newBoard = board->copy();
 					newBoard->doMove(newMove, player);
 					if (positionScore(newBoard, i, j) >= currentMax) {
+						// update max score if this move beats it
 						currentMax = positionScore(newBoard, i, j);
 						betterMove = newMove;
 						currentWeight = boardWeight(i,j);
-						availableMove = true;
+						// Set boolean to true if we've update betterMove
+						availableMove = true; 
 					}
 				}
 			}
 		 }
 	 }
 	 
-	if (availableMove) {
+	if (availableMove) { // if we've found a move
 		board->doMove(betterMove, player);
 		return betterMove;
+	}
+     
+    return nullptr;
+}
+
+/* Return all posible moves of a board and player as a vector.
+ */
+std::vector<Move*> *Player::getPossibleMoves(Board *b, Side player){
+	std::vector<Move*> possible;
+	 for (int i = 0; i < 8; i++) {
+		 for (int j = 0; j < 8; j++) {
+			 // go through all possible moves
+			 Move *newMove = new Move(i, j); 
+			 if (board->checkMove(newMove, player)) {
+				 possible.push_back(newMove); // add the move if its ok
+			 }
+		 }
+	 }
+ }
+ /*
+  * player1 is the AI and player2 is the opponent
+  * player1 is the "current player"
+  * First check for all possible moves
+  * - for each possible move -> find the best possible move of black,
+  * 							then the best possible move of white,
+  * 							then the best possible of sf... etc
+  * - at lowest depth, return the original move that gives the smallest
+  *   black score
+  * - make that move 
+  */
+ 
+minimax_result *Player::minMaxMove(int depth,
+						  Board* b, Side player1, Side player2){
+							  
+							  
+	if (depth == 0){ // base case is when we reach our final depth
+		minimax_result ret;
+		ret.score = miniMaxScore(b); // calculate score of board
+		ret.move = new Move(-1,-1); // return dummy move because we don't make one
+		return ret;
+	}
+	
+	// make a vector of all the possible moves for the current player
+	std::vector<Move*> possible = getPossibleMoves(b, player1);
+	
+	if (possible.size() < 1){ //if the list of moves is empty
+		if(getPossibleMoves(b, player2).size() < 1){
+			// if the other player can't move, the game is over
+			minimax_result ret;
+			ret.score = miniMaxScore(b);
+			if (player2 = player){ // it is the opponents turn
+				ret.score *= -1; // we take the opposite of the score 
+			}
+			ret.move = new Move(-1, -1) // dummy move because we don't make one
+			return (ret); 
+		}
+		// if the game is not over, and we just need to pass, we 
+		// recurse as normal
+		else{
+			// we recurse at a lower depth with the same board
+			minimax_result nextMove = miniMaxMove(depth-1, b, player2,
+												  player1);
+			// we didn't make a move so we return a dummy move
+			nextMove.move = new Move(-1, -1);
+			return (nextMove);
+		}
+							
+	}
+	// if there are possible moves to make then we'll return the one
+	// with the maximum score for player1
+	else {
+		int bestScore = INT_MIN;
+		Move *bestMove;
+		// go through all possible moves
+		for (unsigned int i = 0; i < possible.size(); i++){
+			 Board* newBoard = b->copy();
+			 newBoard->doMove(possible[i], player1); // perform the move
+			 // recurse with a smaller depth, the new board, and switched players
+			 minimax_result currResult = miniMaxMove(depth-1, newBoard,
+													 player1, player2);
+			 // we need to take the opposite of the score because it is
+			 // the opponent's score
+			 currResult.score *= -1;
+			 
+			 if (currResult.score > bestScore){
+				 bestMove = currResult.move;
+			 }
+		 }
+		return (bestMove)
+	}
+}
+	
+	
+Move *Player::doMove(Move *opponentsMove, int msLeft) {
+    /*
+     * TODO: Implement how moves your AI should play here. You should first
+     * process the opponent's opponents move before calculating your own move
+     */
+     int depth = 2;
+     //Let the opponent do move first
+     board->doMove(opponentsMove, opponent);
+ 
+	 //Heuristic Approach
+	 Move *minMax = minMaxMove(depth, board, player, opponent);
+	 
+	if (minMax.getX() != -1 && minMax.getY() != -1) { // if we've found a move
+		board->doMove(minMax, player);
+		return minMax;
 	}
      
     return nullptr;
