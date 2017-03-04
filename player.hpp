@@ -14,7 +14,7 @@ public:
     ~Player();
 
 	int boardWeight(int i, int j);
-	int positionScore(Board *b);
+	int positionScore(Board *b, int i, int j);
     Move *doMove(Move *opponentsMove, int msLeft);
 
     // Flag to tell if the player is running within the test_minimax context

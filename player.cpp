@@ -21,13 +21,12 @@ Player::Player(Side side) {
      player = side;
      if (player == BLACK) {
 		 opponent = WHITE;
-		 std::cerr << "Player side: Black" << std::endl;
+		 std::cerr << "Player is Black!" << std::endl;
 	 }
 	 else {
 		 opponent = BLACK;
-		 std::cerr << "Player side: White" << std::endl;
+		 std::cerr << "Player is White!" << std::endl;
 	 }
-	std::cerr << "Let the game begin!" << std::endl;
 }
 
 /*
@@ -38,73 +37,74 @@ Player::~Player() {
 
 
 int Player::boardWeight(int i, int j) {
-	int weight = 0;
-	if (i == 0 && j == 0) { weight = 99; }
-	else if (i == 0 && j == 7) { weight = 99; }
-	else if (i == 7 && j == 0) { weight = 99; }
-	else if (i == 7 && j == 7) { weight = 99; }
+	int weight = 50;
 	
-	else if (i == 0 && j == 1) { weight = -9;}
-	else if (i == 1 && j == 0) { weight = -9;}
-	else if (i == 1 && j == 1) { weight = -20;}
-	else if (i == 0 && j == 6) { weight = -9;}
-	else if (i == 1 && j == 7) { weight = -9;}
-	else if (i == 1 && j == 6) { weight = -20;}
-	else if (i == 6 && j == 0) { weight = -9;}
-	else if (i == 1 && j == 7) { weight = -9;}
-	else if (i == 1 && j == 6) { weight = -20;}
-	else if (i == 7 && j == 6) { weight = -9;}
-	else if (i == 6 && j == 7) { weight = -9;}
-	else if (i == 6 && j == 6) { weight = -20;}
+	if (i == 0 && j == 0) { weight = 100; }
+	else if (i == 0 && j == 7) { weight = 100; }
+	else if (i == 7 && j == 0) { weight = 100; }
+	else if (i == 7 && j == 7) { weight = 100; }
 	
-	else if (i == 2 && j == 1) { weight = -5;}
-	else if (i == 3 && j == 1) { weight = -4;}
-	else if (i == 4 && j == 1) { weight = -4;}
-	else if (i == 5 && j == 1) { weight = -5;}
-	else if (i == 1 && j == 2) { weight = -5;}
-	else if (i == 1 && j == 3) { weight = -4;}
-	else if (i == 1 && j == 4) { weight = -4;}
-	else if (i == 1 && j == 5) { weight = -5;}
-	else if (i == 2 && j == 6) { weight = -5;}
-	else if (i == 3 && j == 6) { weight = -4;}
-	else if (i == 4 && j == 6) { weight = -4;}
-	else if (i == 5 && j == 6) { weight = -5;}
-	else if (i == 6 && j == 2) { weight = -5;}
-	else if (i == 6 && j == 3) { weight = -4;}
-	else if (i == 6 && j == 4) { weight = -4;}
-	else if (i == 6 && j == 5) { weight = -5;}
+	else if (i == 1 && j == 1) { weight = 10;}
+	else if (i == 1 && j == 6) { weight = 10;}
+	else if (i == 6 && j == 1) { weight = 10;}
+	else if (i == 6 && j == 6) { weight = 10;}
+	
+	else if (i == 0 && j == 1) { weight = 25;}
+	else if (i == 1 && j == 0) { weight = 25;}
+	else if (i == 0 && j == 6) { weight = 25;}
+	else if (i == 1 && j == 7) { weight = 25;}
+	else if (i == 6 && j == 0) { weight = 25;}
+	else if (i == 7 && j == 1) { weight = 25;}
+	else if (i == 7 && j == 6) { weight = 25;}
+	else if (i == 6 && j == 7) { weight = 25;}
+	
+	else if (i == 2 && j == 1) { weight = 40;}
+	else if (i == 5 && j == 1) { weight = 40;}
+	else if (i == 1 && j == 2) { weight = 40;}
+	else if (i == 1 && j == 5) { weight = 40;}
+	else if (i == 2 && j == 6) { weight = 40;}
+	else if (i == 5 && j == 6) { weight = 40;}
+	else if (i == 6 && j == 2) { weight = 40;}
+	else if (i == 6 && j == 5) { weight = 40;}
+	
+	else if (i == 3 && j == 1) { weight = 45;}
+	else if (i == 4 && j == 1) { weight = 45;}
+	else if (i == 1 && j == 3) { weight = 45;}
+	else if (i == 1 && j == 4) { weight = 45;}
+	else if (i == 3 && j == 6) { weight = 45;}
+	else if (i == 4 && j == 6) { weight = 45;}
+	else if (i == 6 && j == 3) { weight = 45;}
+	else if (i == 6 && j == 4) { weight = 45;}
 
 	
-	else if (i == 2 && j == 0) { weight = 8;}
-	else if (i == 3 && j == 0) { weight = 6;}
-	else if (i == 4 && j == 0) { weight = 6;}
-	else if (i == 5 && j == 0) { weight = 8;}
-	else if (i == 0 && j == 2) { weight = 8;}
-	else if (i == 0 && j == 3) { weight = 6;}
-	else if (i == 0 && j == 4) { weight = 6;}
-	else if (i == 0 && j == 5) { weight = 8;}
-	else if (i == 2 && j == 7) { weight = 8;}
-	else if (i == 3 && j == 7) { weight = 6;}
-	else if (i == 4 && j == 7) { weight = 6;}
-	else if (i == 5 && j == 7) { weight = 8;}
-	else if (i == 7 && j == 2) { weight = 8;}
-	else if (i == 7 && j == 3) { weight = 6;}
-	else if (i == 7 && j == 4) { weight = 6;}
-	else if (i == 7 && j == 5) { weight = 8;}
+	else if (i == 2 && j == 0) { weight = 70;}
+	else if (i == 5 && j == 0) { weight = 70;}
+	else if (i == 0 && j == 2) { weight = 70;}
+	else if (i == 0 && j == 5) { weight = 70;}
+	else if (i == 2 && j == 7) { weight = 70;}
+	else if (i == 5 && j == 7) { weight = 70;}
+	else if (i == 7 && j == 2) { weight = 70;}
+	else if (i == 7 && j == 5) { weight = 70;}
 	
-	else if (i == 2 && j == 2) { weight = 7;}
-	else if (i == 5 && j == 5) { weight = 7;}
-	else if (i == 2 && j == 5) { weight = 7;}
-	else if (i == 5 && j == 2) { weight = 7;}
+	else if (i == 3 && j == 0) { weight = 65;}
+	else if (i == 4 && j == 0) { weight = 65;}
+	else if (i == 0 && j == 3) { weight = 65;}
+	else if (i == 0 && j == 4) { weight = 65;}
+	else if (i == 3 && j == 7) { weight = 65;}
+	else if (i == 4 && j == 7) { weight = 65;}
+	else if (i == 7 && j == 3) { weight = 65;}
+	else if (i == 7 && j == 4) { weight = 65;}
+
 	
 	return weight;
 }
 	
 /* Calculate the score for a given board.
  */
-int Player::positionScore(Board* b) {
+int Player::positionScore(Board* b, int i, int j) {
+	int weight = boardWeight(i, j);
 	int score = b->countBlack() - b->countWhite();
-	return (score);
+	return (weight * score);
 }
 
 
@@ -131,22 +131,23 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
      //Let the opponent do move first
      board->doMove(opponentsMove, opponent);
  
+	 //Heuristic Approach
 	 bool availableMove = false;
      Move* betterMove;
-     int currentMax = -100;
-     int currentWeight = -100;
+     int currentMax = -100000;
+     int currentWeight = -1;
      Board* newBoard = board->copy();
      for (int i = 0; i < 8; i++) {
 		 for (int j = 0; j < 8; j++) {
 			 Move *newMove = new Move(i, j);
 			 if (board->checkMove(newMove, player)) {
-				if (boardWeight(i, j) >= currentWeight) {
+				 if (boardWeight(i, j) >= currentWeight) {
 					newBoard = board->copy();
 					newBoard->doMove(newMove, player);
-					if (positionScore(newBoard) >= currentMax) {
-						currentMax = positionScore(newBoard);
+					if (positionScore(newBoard, i, j) >= currentMax) {
+						currentMax = positionScore(newBoard, i, j);
 						betterMove = newMove;
-						currentMax = boardWeight(i,j);
+						currentWeight = boardWeight(i,j);
 						availableMove = true;
 					}
 				}
