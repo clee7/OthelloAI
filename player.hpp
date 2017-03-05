@@ -23,7 +23,7 @@ public:
     ~Player();
 
 	int boardWeight(int i, int j);
-	int positionScore(Board *b, int i, int j);
+	int positionScore(Board *b, Side player, int i, int j);
 	int minMaxScore(Board *b, Side player);
 	Move *doMiniMaxMove(Move *opponentsMove, int msLeft);
     Move *doMove(Move *opponentsMove, int msLeft);

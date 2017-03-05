@@ -11,15 +11,8 @@
 Player::Player(Side side) {
     // Will be set to true in test_minimax.cpp.
     testingMinimax = false;
-	
-    /*
-     * TODO: Do any initialization you need to do here (setting up the board,
-     * precalculating things, etc.) However, remember that you will only have
-     * 30 seconds.
-     */
-     
+	     
      board = new Board();
-     /*decisionTree.clear();*/
      
      player = side;
      if (player == BLACK) {
@@ -105,9 +98,15 @@ int Player::boardWeight(int i, int j) {
 /* Calculate the score for a certain move based on the board 
  * and move weight.
  */
-int Player::positionScore(Board* b, int i, int j) {
+int Player::positionScore(Board* b, Side player, int i, int j) {
 	int weight = boardWeight(i, j);
-	int score = b->countBlack() - b->countWhite();
+	int score = 0;
+	if (player == BLACK) {
+		score = b->countBlack() - b->countWhite();
+	}
+	else {
+		score = b->countWhite() - b->countBlack();
+	}
 	return (weight * score);
 }
 
@@ -138,10 +137,6 @@ int Player::minMaxScore(Board*b, Side player){
  */
    
 Move *Player::makeMoveWeighted(Move *opponentsMove, int msLeft) {
-    /*
-     * TODO: Implement how moves your AI should play here. You should first
-     * process the opponent's opponents move before calculating your own move
-     */
      
      //Let the opponent do move first
      board->doMove(opponentsMove, opponent);
@@ -160,9 +155,9 @@ Move *Player::makeMoveWeighted(Move *opponentsMove, int msLeft) {
 				 if (boardWeight(i, j) >= currentWeight) {
 					newBoard = board->copy();
 					newBoard->doMove(newMove, player);
-					if (positionScore(newBoard, i, j) >= currentMax) {
+					if (positionScore(newBoard, player, i, j) >= currentMax) {
 						// update max score if this move beats it
-						currentMax = positionScore(newBoard, i, j);
+						currentMax = positionScore(newBoard, player, i, j);
 						betterMove = newMove;
 						currentWeight = boardWeight(i,j);
 						// Set boolean to true if we've update betterMove
@@ -275,10 +270,7 @@ Player::minimax_result Player::maxOfThis(int depth,
 
 	
 Move *Player::doMiniMaxMove(Move *opponentsMove, int msLeft) {
-    /*
-     * TODO: Implement how moves your AI should play here. You should first
-     * process the opponent's opponents move before calculating your own move
-     */
+
     int depth = 2;
     
      //Let the opponent do move first
@@ -294,14 +286,11 @@ Move *Player::doMiniMaxMove(Move *opponentsMove, int msLeft) {
 
 }
 Move *Player::doMove(Move *opponentsMove, int msLeft) {
-    /*
-     * TODO: Implement how moves your AI should play here. You should first
-     * process the opponent's opponents move before calculating your own move
-     */
+
     
     
-    //return (doMiniMaxMove(opponentsMove, msLeft));
-    return (makeMoveWeighted(opponentsMove, msLeft));
+    return (doMiniMaxMove(opponentsMove, msLeft));
+    //return (makeMoveWeighted(opponentsMove, msLeft));
     
 	
 
