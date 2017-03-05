@@ -19,11 +19,12 @@ int main(int argc, char *argv[]) {
         ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
         ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '
     };
-    Board *board = new Board();
-    board->setBoard(boardData);
+    Board *board64 = new Board();
+    board64->setBoard(boardData);
 
     // Initialize player as the white player, and set testing_minimax flag.
     Player *player = new Player(WHITE);
+    player-> board = board64;
     player->testingMinimax = true;
 
 
