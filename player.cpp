@@ -148,7 +148,7 @@ Move *Player::makeWeightedMove(Move *opponentsMove, int msLeft) {
  
 	 //Heuristic Approach
 	 bool availableMove = false;
-     Move* betterMove;
+     Move* betterMove = nullptr;
      int currentMax = INT_MIN;
      int currentWeight = INT_MIN;
      Board* newBoard = board->copy();
@@ -245,7 +245,7 @@ Player::minimax_result Player::findMiniMax(int depth, Board* b,
 	// with the maximum score for player1
 	else {
 		int bestScore = INT_MIN;
-		Move *bestMove;
+		Move *bestMove = nullptr;
 		minimax_result bestResult;
 		// go through all possible moves
 		for (unsigned int i = 0; i < possible.size(); i++){
