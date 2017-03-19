@@ -1,7 +1,0 @@
-TO DO's:
-
-1. Test the current code
-2. Implement Minimax Decision Trees
-    - Need some kind of tree structure so that every node contains: the board, the move that takes to the board, the score, pointer to the next level
-
-GOOD LUCK MICHELLE!!!!
