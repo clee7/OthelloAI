@@ -1,5 +1,5 @@
 CONTRIBUTIONS:
-  Chih-Chieh Lee -> Simple heuristic model with weighted board pieces; Alpha-Beta Pruning; Compiler Optimization
+  Chih-Chieh Lee -> Simple heuristic model with weighted board pieces; Alpha-Beta Pruning; Compiler Optimization; Restructured minimax implementation
   Yuxie Xiao -> Recursive minimax implementation with new weight function, segfault bug fixes
   
 Using minimax decision tree, our AI decides the move it takes against the opponent.
@@ -8,7 +8,7 @@ Previously, we wrote two separate functions: one for getting max score for the A
 for getting the min score for the opponent. We wrote cleaner code by combining these
 into one function that just takes the negative of the other player's score. 
 
- Efficiency in constructing the tree is improved using Alpha-Beta Pruning. 
+Efficiency in constructing the tree is improved using Alpha-Beta Pruning. 
 We set the depth of the decision tree to be 4 to limit the time spend on building the
  decision tree while obtaining sufficient prediction into the next moves. 
  Compiler Optimization is chosen to be the tag "-O3".

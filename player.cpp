@@ -5,8 +5,6 @@
  * on (BLACK or WHITE) is passed in as "side". The constructor must finish
  * within 30 seconds.
  */
- 
-
 
 Player::Player(Side side) {
     // Will be set to true in test_minimax.cpp.
@@ -32,7 +30,8 @@ Player::~Player() {
 }
 
 /* Calculate board weight based on position. Used only in position 
- * score. */
+ * score. (For simple Heuristic Search)  
+ */
 int Player::boardWeight(int i, int j) {
 	int weight = 50;
 	
@@ -124,63 +123,6 @@ int Player::minMaxScore(Board*b, Side p){
 	return (score);
 }
 
-
-/*
- * Compute the next move given the opponent's last move. Your AI is
- * expected to keep track of the board on its own. If this is the first move,
- * or if the opponent passed on the last move, then opponentsMove will be
- * nullptr.
- *
- * msLeft represents the time your AI has left for the total game, in
- * milliseconds. doMove() must take no longer than msLeft, or your AI will
- * be disqualified! An msLeft value of -1 indicates no time limit.
- *
- * The move returned must be legal; if there are no valid moves for your side,
- * return nullptr.
- */
- 
-/* This function performs a simple heuristic move based on the position
- * score function. */ 
-Move *Player::makeWeightedMove(Move *opponentsMove, int msLeft) {
-     
-     //Let the opponent do move first
-     board->doMove(opponentsMove, opponent);
- 
-	 //Heuristic Approach
-	 bool availableMove = false;
-     Move* betterMove = nullptr;
-     int currentMax = INT_MIN;
-     int currentWeight = INT_MIN;
-     Board* newBoard = board->copy();
-     for (int i = 0; i < 8; i++) {
-		 for (int j = 0; j < 8; j++) {
-			 // go through all possible moves
-			 Move *newMove = new Move(i, j); 
-			 if (board->checkMove(newMove, player)) {
-				 if (boardWeight(i, j) >= currentWeight) {
-					newBoard = board->copy();
-					newBoard->doMove(newMove, player);
-					if (positionScore(newBoard, player, i, j) >= currentMax) {
-						// update max score if this move beats it
-						currentMax = positionScore(newBoard, player, i, j);
-						betterMove = newMove;
-						currentWeight = boardWeight(i,j);
-						// Set boolean to true if we've update betterMove
-						availableMove = true; 
-					}
-				}
-			}
-		 }
-	 }
-	 
-	if (availableMove) { // if we've found a move
-		board->doMove(betterMove, player);
-		return betterMove;
-	}
-     
-    return nullptr;
-}
-
 /* Return all posible moves of a board and player as a vector.
  */
 std::vector<Move*> Player::getPossibleMoves(Board *b, Side player1){
@@ -197,120 +139,149 @@ std::vector<Move*> Player::getPossibleMoves(Board *b, Side player1){
 	return possible;
  }
  
- 
-
- /*
-  * We want to maximize the score of player 1 by maximizing the minimum
-  * score.
-  */
-Player::minimax_result Player::findMiniMax(int depth, Board* b, 
+/*
+ * We want to maximize the score of player 1 by maximizing the minimum
+ * score. (Minimax Algorithm with Alpha-Beta Pruning)
+ */
+int Player::findMiniMax(int depth, Board* b, 
 					int alpha, int beta, Side player1, Side player2){
 							  
 	if (depth == 0){ // base case is when we reach our final depth
-		minimax_result ret;
-		ret.score = minMaxScore(b, player1); // calculate score of board
-		ret.move = new Move(-1,-1); // return dummy move 
-		return ret;
+		return minMaxScore(b, player1);
 	}
 	
 	// make a vector of all the possible moves for the current player
 	std::vector<Move*> possible = getPossibleMoves(b, player1);
 	
 	if (possible.size() < 1){ //if the list of moves is empty
-		if(getPossibleMoves(b, player2).size() < 1){
-			// if the other player can't move, the game is over
-			minimax_result ret;
-			
-			ret.score = minMaxScore(b, player1) * INT_MAX;
-		
-			ret.move = new Move(-1, -1); // dummy move 
-			return (ret); 
+		//if the game ends, make it more weighted
+		if (getPossibleMoves(b, player2).size() < 1) {
+			return minMaxScore(b, player1) * 1000;
 		}
-		
-		// if the game is not over, and we just need to pass, we 
-		// recurse as normal
-		else{
-			// we recurse at a lower depth with the same board
-			minimax_result nextMove = findMiniMax(depth-1, b, alpha, beta,
-												player2, player1);
-			// we didn't make a move so we return a dummy move
-			nextMove.move = new Move(-1, -1);
-			// we take the inverse of the opponents score
-			nextMove.score *= -1;
-			return (nextMove);
-		}
-							
+		return minMaxScore(b, player1); 							
 	}
+	
 	// if there are possible moves to make then we'll return the one
 	// with the maximum score for player1
 	else {
 		int bestScore = INT_MIN;
-		Move *bestMove = nullptr;
-		minimax_result bestResult;
 		// go through all possible moves
 		for (unsigned int i = 0; i < possible.size(); i++){
 			
-			 Board* newBoard = b->copy();
-			 newBoard->doMove(possible[i], player1); // perform the move
-			 // recurse with a smaller depth, the new board, and switched players
-			 minimax_result currResult = findMiniMax(depth-1, newBoard,
-													 alpha, beta,
-													 player2, player1);
-			
-			 currResult.score *= -1;
-			 if (currResult.score > bestScore){
-				 bestMove = possible[i];
-				 bestScore = currResult.score;
-			 }
+			Board* newBoard = b->copy();
+			newBoard->doMove(possible[i], player1); // perform the move
 			 
-			 if (player1 == player) {
-				 if (currResult.score > alpha) {
-					 alpha = currResult.score;
-				 }
-			 }
-			 else {
-				 if (currResult.score < beta) {
-					 beta = currResult.score;
-				 }
-			 }
-			 
-			 if (beta <= alpha) {
-				 break;
-			 }
-		 }
-		bestResult.move = bestMove;
-		bestResult.score = bestScore; 
-		return (bestResult);
+			// recurse with a smaller depth, the new board, and 
+			// switched players
+			int currResult = findMiniMax(depth-1, newBoard,
+										alpha, beta, player2, player1);
 			
+			currResult *= -1;
+			if (currResult > bestScore){
+				bestScore = currResult;
+			}
+			 
+			// Alpha-Beta Pruning
+			if (player1 == player) { // If it is the maximizing player
+				if (currResult > alpha) { // Update alpha
+					alpha = currResult;
+				}
+			}
+			else { // the minimizing player
+				if (currResult < beta) { // Update beta
+					beta = currResult;
+				}
+			}
+			 
+			if (beta <= alpha) { // No need to travel done the branch
+				break;
+			} 
+		}
+		return (bestScore);	
 	}
 }
 	
-	
-Move *Player::doMiniMaxMove(Move *opponentsMove, int msLeft) {
-
-    int depth = 4;
-    
+/*
+ * Compute the next move given the opponent's last move. Your AI is
+ * expected to keep track of the board on its own. If this is the first move,
+ * or if the opponent passed on the last move, then opponentsMove will be
+ * nullptr.
+ *
+ * msLeft represents the time your AI has left for the total game, in
+ * milliseconds. doMove() must take no longer than msLeft, or your AI will
+ * be disqualified! An msLeft value of -1 indicates no time limit.
+ *
+ * The move returned must be legal; if there are no valid moves for your side,
+ * return nullptr.
+ */
+ 
+ 
+/* This function performs a simple heuristic move based on the position
+ * score function. */ 
+Move *Player::makeWeightedMove(Move *opponentsMove, int msLeft) {
+     
      //Let the opponent do move first
      board->doMove(opponentsMove, opponent);
  
-	 minimax_result bestResult = findMiniMax(depth, board, INT_MIN, 
-										INT_MAX, player, opponent);
-	 if (board->checkMove(bestResult.move, player)){
-		board->doMove(bestResult.move, player);
-		return (bestResult.move);
- 	 }
-	 return nullptr;
+	 //Heuristic Approach
+     Move* betterMove = nullptr;
+     int currentMax = INT_MIN;
+	 std::vector<Move*> possible = getPossibleMoves(board, player);
+	 
+	 for (unsigned int i = 0; i < possible.size(); i++) {
+		Board* newBoard = board->copy();
+		newBoard->doMove(possible[i], player);
+			
+		int currScore = positionScore(newBoard, player, 
+							possible[i]->getX(), possible[i]->getY());
+		if ( currScore >= currentMax) {
+			// update max score and better move is better
+				currentMax = currScore;
+				betterMove = possible[i];
+		}
+	}
+	if (board->checkMove(betterMove, player)) { // if we've found a move
+		board->doMove(betterMove, player);
+		return betterMove;
+	} 
+    return nullptr;
+}
+
+/* This function calls the minimax algorithm to find the best move. */
+Move *Player::doMiniMaxMove(Move *opponentsMove, int msLeft) {
+
+	int depth = 3;
+	
+    //Let the opponent do move first
+    board->doMove(opponentsMove, opponent);
+ 
+	std::vector<Move*> possible = getPossibleMoves(board, player);
+	Move* bestMove = nullptr;
+	int bestResult = INT_MIN;
+	
+	for (unsigned int i = 0; i < possible.size();i++) {
+		Board* newBoard = board->copy();
+		newBoard->doMove(possible[i], player); 
+		int currResult = findMiniMax(depth, newBoard, INT_MIN, 
+										INT_MAX, opponent, player);
+		currResult *= -1;
+		if(currResult > bestResult) {
+			bestMove = possible[i];
+			bestResult = currResult;
+		}
+	}
+	
+	if (board->checkMove(bestMove, player)){
+		board->doMove(bestMove, player);
+		return (bestMove);
+ 	}
+	return nullptr;
 }
 
 Move *Player::doMove(Move *opponentsMove, int msLeft) {
 
-    
-    
     return (doMiniMaxMove(opponentsMove, msLeft));
-    //return (makeMoveWeighted(opponentsMove, msLeft));
+    //return (makeWeightedMove(opponentsMove, msLeft));
     
-	
-
-
 }
 
